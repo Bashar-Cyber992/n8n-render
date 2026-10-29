@@ -1,35 +1,10 @@
 services:
   - type: web
-    name: n8n-db
-    env: postgres
-    region: frankfurt
-    plan: free
-    disk:
-      name: n8n-db-data
-      mountPath: /var/lib/postgresql/data
-      sizeGB: 1
-
-  - type: web
     name: n8n-app
     env: docker
     region: frankfurt
     plan: free
     envVars:
-      - key: DB_TYPE
-        value: postgresdb
-      - key: DB_POSTGRESDB_HOST
-        fromService:
-          type: web
-          name: n8n-db
-          property: host
-      - key: DB_POSTGRESDB_PORT
-        value: "5432"
-      - key: DB_POSTGRESDB_DATABASE
-        value: n8n
-      - key: DB_POSTGRESDB_USER
-        value: postgres
-      - key: DB_POSTGRESDB_PASSWORD
-        generateValue: true
       - key: N8N_ENCRYPTION_KEY
         generateValue: true
       - key: WEBHOOK_URL
