@@ -1,0 +1,41 @@
+services:
+  # 1. خدمة قاعدة بيانات PostgreSQL (لحفظ بيانات n8n بشكل دائم)
+  - type: pserv
+    name: n8n-db
+    env: postgres
+    region: frankfurt # يمكنك تغيير المنطقة حسب رغبتك
+    plan: free # يمكنك اختيار خطة مدفوعة لاحقاً للأداء الأفضل
+    ipAllowList: [] # السماح بالوصول
+
+  # 2. خدمة تشغيل n8n
+  - type: web
+    name: n8n-app
+    env: docker
+    region: frankfurt
+    plan: free
+    envVars:
+      - key: DB_TYPE
+        value: postgresdb
+      - key: DB_POSTGRESDB_HOST
+        fromService:
+          type: pserv
+          name: n8n-db
+          property: host
+      - key: DB_POSTGRESDB_PORT
+        value: "5432"
+      - key: DB_POSTGRESDB_DATABASE
+        value: n8n
+      - key: DB_POSTGRESDB_USER
+        fromService:
+          type: pserv
+          name: n8n-db
+          property: user
+      - key: DB_POSTGRESDB_PASSWORD
+        fromService:
+          type: pserv
+          name: n8n-db
+          property: password
+      - key: N8N_ENCRYPTION_KEY
+        generateValue: true # مفتاح تشفير أمان يتم توليده تلقائياً
+      - key: WEBHOOK_URL
+        sync: false # سيتم تحديثه لاحقاً برابط سيرفرك على Render
